@@ -19,15 +19,9 @@ int main()
     while (getline(cin, inst))
     {
 
-        auto lb_pos = inst.find_last_not_of("\n");
-        if (lb_pos != string::npos)
+        if (!inst.empty() && inst[inst.size() - 1] == '\r')
         {
-            inst.erase(lb_pos + 1);
-        }
-        auto lbwin_pos = inst.find_last_not_of("\r\n");
-        if (lbwin_pos != string::npos)
-        {
-            inst.erase(lbwin_pos + 1);
+            inst.erase(inst.size() - 1);
         }
 
         string num_buffer = "";

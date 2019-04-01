@@ -18,8 +18,10 @@ int main()
         int cnt = 0;
         while (getline(cin, tree))
         {
-            tree.erase(tree.find_last_not_of("\r\n") + 1);
-            tree.erase(tree.find_last_not_of("\n") + 1);
+            if (tree[tree.size() - 1] == '\r')
+            {
+                tree.erase(tree.size() - 1);
+            }
             if (tree.size() == 0)
                 break;
             auto it = obs.find(tree);
