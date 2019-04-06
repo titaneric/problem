@@ -1,106 +1,115 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#define seqn 50
+#include <iostream>
+#include <string>
+#include <map>
+#include <utility>
 
-void swap(int array[][5], int x1, int y1, int x2, int y2)
+using namespace std;
+map<char, pair<int, int>> direction_dict = {
+    {'A', {-1, 0}},
+    {'B', {1, 0}},
+    {'L', {0, -1}},
+    {'R', {0, 1}}};
+bool valid_access(int r, int c)
 {
-    int t = array[x1][y1];
-    array[x1][y1] = array[x2][y2];
-    array[x2][y2] = t;
+    return ((r >= 0) && (r < 5)) && ((c >= 0) && (c < 5));
 }
 int main()
 {
-    int puzzle[5][5];
-    int e_i, e_j;
-    char c;
     int kase = 0;
-    while ((c = getchar()) != 'Z')
+    char inst;
+    string linebreak;
+    bool is_terminated = false;
+    while ((inst = getchar()) && inst != 'Z' && !is_terminated)
     {
-        /* code */
-        ungetc(c, stdin);
+        if (kase)
+            cout << endl;
+        ungetc(inst, stdin);
+
+        cout << "Puzzle #" << ++kase << ":\n";
+        string puz;
+        int initx = -1, inity = -1;
+        char puzzle[5][5];
         for (int i = 0; i < 5; i++)
         {
+            getline(cin, puz);
+            // cout << puz << endl;
+            if (puz.size() && puz[puz.size() - 1] == '\r')
+            {
+                puz.erase(puz.size() - 1);
+            }
+            if (puz.size() < 5)
+            {
+                puz += ' ';
+            }
             for (int j = 0; j < 5; j++)
             {
-                puzzle[i][j] = getchar();
-                // putchar(puzzle[i][j]);
+                puzzle[i][j] = puz[j];
+                // cout << puzzle[i][j] << endl;
                 if (puzzle[i][j] == ' ')
                 {
-                    e_i = i;
-                    e_j = j;
+                    initx = i;
+                    inity = j;
                 }
             }
-            getchar(); // line break
         }
-        int error = 0;
-        while ((c = getchar()) != '0')
+
+        bool invalid = false;
+        while ((inst = getchar()) && inst != '0')
         {
-            if (isspace(c))
+            if (isspace(inst))
                 continue;
-            if (c == 'A')
+            if (direction_dict.find(inst) == direction_dict.end())
             {
-                if (e_i == 0)
-                {
-                    error = 1;
-                    break;
-                }
-                swap(puzzle, e_i, e_j, --e_i, e_j);
+                invalid = true;
+                break;
             }
-            else if (c == 'B')
+            
+            auto dir = direction_dict[inst];
+            int target_x = initx + dir.first;
+            int target_y = inity + dir.second;
+            // cout << inst << ":";
+            // cout << initx << ","<<inity <<"->";
+            // cout << target_x <<","<<target_y<<endl;
+            if (valid_access(target_x, target_y))
             {
-                if (e_i == 4)
-                {
-                    error = 1;
-                    break;
-                }
-                swap(puzzle, e_i, e_j, ++e_i, e_j);
+                swap(puzzle[initx][inity], puzzle[target_x][target_y]);
+                initx = target_x;
+                inity = target_y;
             }
-            else if (c == 'L')
+            else
             {
-                if (e_j == 0)
-                {
-                    error = 1;
-                    break;
-                }
-                swap(puzzle, e_i, e_j, e_i, --e_j);
-            }
-            else if (c == 'R')
-            {
-                if (e_j == 4)
-                {
-                    error = 1;
-                    break;
-                }
-                swap(puzzle, e_i, e_j, e_i, ++e_j);
+                invalid = true;
+                break;
             }
         }
-        // eat rest of input
-        if (error)
-            while ((c = getchar()))
+        if (invalid)
+            while ((inst = getchar()) && inst != '0')
                 ;
-
-        if (getchar() == 'Z')
-            break;
-
-        kase++;
-        if (kase > 1)
-            putchar('\n');
-        printf("Puzzle #%d:\n", kase);
-        if (error)
-            printf("This puzzle has no final configuration.\n");
+        getline(cin, linebreak);
+        if ((inst = getchar()) == 'Z')
+            is_terminated = true;
         else
+        {
+            ungetc(inst, stdin);
+        }
+        
+
+        if (invalid)
+        {
+            cout << "This puzzle has no final configuration.\n";
+        }
+        else
+        {
             for (int i = 0; i < 5; i++)
             {
-                for (int j = 0; j < 5; j++)
+                int j = 0;
+                for (; j < 4; j++)
                 {
-                    putchar(puzzle[i][j]);
-                    if (j < 4)
-                        putchar(' ');
+                    cout << puzzle[i][j] << " ";
                 }
-                putchar('\n');
+                cout << puzzle[i][j] << endl;
             }
+        }
     }
     return 0;
 }
